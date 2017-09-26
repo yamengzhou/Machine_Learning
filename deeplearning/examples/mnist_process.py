@@ -15,17 +15,24 @@ h_conv1 = tf.nn.relu(Utils.conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = Utils.max_pool_2x2(h_conv1)
 
 # second convolution layer
-W_conv2 = Utils.weight_variable([5, 5, 32, 64])
-b_conv2 = Utils.bias_variable([64])
+# W_conv2 = Utils.weight_variable([5, 5, 32, 64])
+# b_conv2 = Utils.bias_variable([64])
+#
+# h_conv2 = tf.nn.relu(Utils.conv2d(h_pool1, W_conv2) + b_conv2)
+# h_pool2 = Utils.max_pool_2x2(h_conv2)
 
-h_conv2 = tf.nn.relu(Utils.conv2d(h_pool1, W_conv2) + b_conv2)
-h_pool2 = Utils.max_pool_2x2(h_conv2)
+# FIXME: replace a convolution layer with an inception layer
+# first inception layer
+h_inc1 = tf.nn.relu(Utils.inception(h_pool1, 32))
+h_pool2 = Utils.max_pool_2x2(h_inc1)
 
 # first dense connected layer
-W_1 = Utils.weight_variable([7 * 7 * 64, 1024])
-b_1 = Utils.bias_variable([1024])
+# W_1 = Utils.weight_variable([7 * 7 * 64, 1024])
+W_1 = Utils.weight_variable([7 * 7 * 224, 4096])
+b_1 = Utils.bias_variable([4096])
 
-h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+# h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 224])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_1) + b_1)
 
 # dropout mechanism
@@ -33,7 +40,7 @@ keep_prob = tf.placeholder(tf.float32)
 h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
 # second dense connected layer
-W_2 = Utils.weight_variable([1024, 10])
+W_2 = Utils.weight_variable([4096, 10])
 b_2 = Utils.bias_variable([10])
 
 y = tf.nn.relu(tf.matmul(h_fc1_drop, W_2) + b_2)
